@@ -12,6 +12,7 @@
 
 const WebSocket = require("ws");
 const EventEmitter = require("events");
+const https = require("https");
 
 class BinanceFeed extends EventEmitter {
   /**
@@ -27,7 +28,7 @@ class BinanceFeed extends EventEmitter {
     }
     this.symbols = options.symbols.map((s) => s.toLowerCase());
     this.streams = options.streams || ["trade", "ticker", "orderbook"];
-    this.wsUrl = "wss://stream.binance.com:9443/ws";
+    this.wsUrl = "wss://52.68.157.209/ws";
     this.ws = null;
     this.running = false;
     this.pingInterval = null;
@@ -136,7 +137,8 @@ class BinanceFeed extends EventEmitter {
       streams: this.streams,
     });
 
-    this.ws = new WebSocket(url);
+    const agent = new https.Agent({ rejectUnauthorized: false });
+    this.ws = new WebSocket(url, { agent });
 
     this.ws.on("open", () => {
       this.emit("connected", { url: url, symbols: this.symbols });
